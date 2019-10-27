@@ -1,0 +1,35 @@
+import fs from 'fs'
+import { MatchResult } from './MatchResult'
+import { dateStringToDate } from './utils'
+
+type MatchData = [Date, string, string, number, number, MatchResult, string]
+
+export default class CsvFileReader {
+    data: MatchData[] = []
+    constructor(public filename: string) {
+        this.read()
+    }
+
+    read(): void {
+        const matchData = fs.readFileSync(this.filename, { encoding: 'utf-8' })
+
+        const matchesRows = matchData.split('\n')
+
+        const matches = matchesRows.map((row) => row.split(','))
+
+        const matchesTyped = matches.map(
+            (row: string[]): MatchData => {
+                return [
+                    dateStringToDate(row[0]),
+                    row[1],
+                    row[2],
+                    parseInt(row[3]),
+                    parseInt(row[4]),
+                    row[5] as MatchResult,
+                    row[6],
+                ]
+            }
+        )
+        this.data = matchesTyped
+    }
+}
